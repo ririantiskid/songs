@@ -37,7 +37,7 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 280, 0, 380)
+frame.Size = UDim2.new(0, 280, 0, 500)
 frame.Position = UDim2.new(0.5, -140, 0.5, -190)
 frame.BackgroundColor3 = Color3.fromRGB(10, 20, 60)
 frame.BorderSizePixel = 0
@@ -137,7 +137,7 @@ searchBox.Parent = frame
 Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 10)
 
 local listFrame = Instance.new("Frame")
-listFrame.Size = UDim2.new(1, -24, 1, -160)
+listFrame.Size = UDim2.new(1, -24, 1, -280)
 listFrame.Position = UDim2.new(0, 12, 0, 95)
 listFrame.BackgroundColor3 = Color3.fromRGB(10, 30, 80)
 listFrame.BorderSizePixel = 0
@@ -173,6 +173,7 @@ end)
 local currentSound = nil
 local songCache = {}
 local debounce = false
+local looping = false
 
 local function stopCurrent()
     if currentSound then
@@ -223,9 +224,10 @@ local function createSongButton(song, order)
                 end
             end
 
-            local sound = Instance.new("Sound")
+                        local sound = Instance.new("Sound")
             sound.SoundId = soundId
-            sound.Volume = 1
+            sound.Volume = volumeLevel
+            sound.Looped = looping
             sound.Parent = workspace
             sound:Play()
             currentSound = sound
@@ -248,6 +250,108 @@ end
 for i, song in ipairs(SONGS) do
     createSongButton(song, i)
 end
+
+-- Volume label
+local volumeLabel = Instance.new("TextLabel")
+volumeLabel.Size = UDim2.new(0.5, 0, 0, 16)
+volumeLabel.Position = UDim2.new(0, 12, 1, -130)
+volumeLabel.BackgroundTransparency = 1
+volumeLabel.TextXAlignment = Enum.TextXAlignment.Left
+volumeLabel.Font = Enum.Font.Gotham
+volumeLabel.TextSize = 12
+volumeLabel.TextColor3 = Color3.fromRGB(100, 180, 255)
+volumeLabel.Text = "Volume: 100%"
+volumeLabel.Parent = frame
+
+-- Volume slider track
+local sliderTrack = Instance.new("Frame")
+sliderTrack.Size = UDim2.new(1, -24, 0, 10)
+sliderTrack.Position = UDim2.new(0, 12, 1, -110)
+sliderTrack.BackgroundColor3 = Color3.fromRGB(20, 60, 140)
+sliderTrack.BorderSizePixel = 0
+sliderTrack.Parent = frame
+Instance.new("UICorner", sliderTrack).CornerRadius = UDim.new(1, 0)
+
+local sliderFill = Instance.new("Frame")
+sliderFill.Size = UDim2.new(1, 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(30, 144, 255)
+sliderFill.BorderSizePixel = 0
+sliderFill.Parent = sliderTrack
+Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
+
+local sliderKnob = Instance.new("TextButton")
+sliderKnob.Size = UDim2.new(0, 18, 0, 18)
+sliderKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+sliderKnob.Position = UDim2.new(1, 0, 0.5, 0)
+sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sliderKnob.Text = ""
+sliderKnob.BorderSizePixel = 0
+sliderKnob.ZIndex = 5
+sliderKnob.Parent = sliderTrack
+Instance.new("UICorner", sliderKnob).CornerRadius = UDim.new(1, 0)
+
+local volumeLevel = 1
+local sliderDragging = false
+
+local function updateVolume(scale)
+    scale = math.clamp(scale, 0, 1)
+    volumeLevel = scale
+    sliderFill.Size = UDim2.new(scale, 0, 1, 0)
+    sliderKnob.Position = UDim2.new(scale, 0, 0.5, 0)
+    volumeLabel.Text = "Volume: " .. math.floor(scale * 100) .. "%"
+    if currentSound then
+        currentSound.Volume = scale
+    end
+end
+
+sliderKnob.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        sliderDragging = true
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        sliderDragging = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if sliderDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local trackPos = sliderTrack.AbsolutePosition.X
+        local trackWidth = sliderTrack.AbsoluteSize.X
+        local scale = (input.Position.X - trackPos) / trackWidth
+        updateVolume(scale)
+    end
+end)
+sliderTrack.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        local trackPos = sliderTrack.AbsolutePosition.X
+        local trackWidth = sliderTrack.AbsoluteSize.X
+        local scale = (input.Position.X - trackPos) / trackWidth
+        updateVolume(scale)
+    end
+end)
+
+-- Loop button
+local loopBtn = Instance.new("TextButton")
+loopBtn.Size = UDim2.new(1, -24, 0, 28)
+loopBtn.Position = UDim2.new(0, 12, 1, -78)
+loopBtn.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+loopBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+loopBtn.Font = Enum.Font.GothamBold
+loopBtn.TextSize = 13
+loopBtn.Text = "🔁 Loop: OFF"
+loopBtn.BorderSizePixel = 0
+loopBtn.Parent = frame
+Instance.new("UICorner", loopBtn).CornerRadius = UDim.new(0, 10)
+
+loopBtn.Activated:Connect(function()
+    looping = not looping
+    loopBtn.Text = looping and "🔁 Loop: ON" or "🔁 Loop: OFF"
+    loopBtn.BackgroundColor3 = looping and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(20, 80, 180)
+    if currentSound then
+        currentSound.Looped = looping
+    end
+end)
 
 local stopBtn = Instance.new("TextButton")
 stopBtn.Size = UDim2.new(1, -24, 0, 32)
