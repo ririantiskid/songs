@@ -1,0 +1,281 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local SONGS = {
+    {name = "Song 1", id = "https://files.catbox.moe/zn48ws.mp3"},
+    {name = "Song 2", id = "https://files.catbox.moe/j5mj01.mp3"},
+    {name = "Song 3", id = "https://files.catbox.moe/qs56vd.mp3"},
+    {name = "Song 4", id = "https://files.catbox.moe/19bsld.mp3"},
+    {name = "Song 5", id = "https://files.catbox.moe/0qod8o.mp3"},
+    {name = "Song 6", id = "https://files.catbox.moe/qflf0k.mp3"},
+    {name = "Song 7", id = "https://files.catbox.moe/b45ygk.mp3"},
+    {name = "Song 8", id = "https://files.catbox.moe/cjce0u.mp3"},
+    {name = "Song 9", id = "https://files.catbox.moe/kxuzib.mp3"},
+    {name = "Song 10", id = "https://files.catbox.moe/rqbr8z.mp3"},
+    {name = "Song 11", id = "https://files.catbox.moe/l78s9f.mp3"},
+    {name = "Song 12", id = "https://files.catbox.moe/qn7muo.mp3"},
+    {name = "Song 13", id = "https://files.catbox.moe/jj28c0.mp3"},
+    {name = "Song 14", id = "https://files.catbox.moe/7781iw.mp3"},
+    {name = "Song 15", id = "https://files.catbox.moe/cugw7c.mp3"},
+    {name = "Song 16", id = "https://files.catbox.moe/hdxkrw.mp3"},
+    {name = "Song 17", id = "https://files.catbox.moe/w8qacz.mp3"},
+    {name = "Song 18", id = "https://files.catbox.moe/p4uvn5.mp3"},
+    {name = "Song 19", id = "https://files.catbox.moe/j45k9z.mp3"},
+    {name = "Song 20", id = "https://files.catbox.moe/i5bk29.mp3"},
+    {name = "Song 21", id = "https://files.catbox.moe/7v9vmt.mp3"},
+    {name = "Song 22", id = "https://files.catbox.moe/976y0t.mp3"},
+    {name = "Song 23", id = "https://files.catbox.moe/i9w9zv.mp3"},
+    {name = "Song 24", id = "https://files.catbox.moe/7ar7bw.mp3"},
+    {name = "Song 25", id = "https://files.catbox.moe/iuaknn.mp3"},
+}
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SongsGUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 280, 0, 380)
+frame.Position = UDim2.new(0.5, -140, 0.5, -190)
+frame.BackgroundColor3 = Color3.fromRGB(10, 20, 60)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.ClipsDescendants = false
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+local st = Instance.new("UIStroke")
+st.Color = Color3.fromRGB(30, 144, 255)
+st.Transparency = 0.3
+st.Parent = frame
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 36)
+titleBar.BackgroundTransparency = 1
+titleBar.Active = true
+titleBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0.7, 0, 1, 0)
+title.Position = UDim2.new(0, 12, 0, 0)
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Font = Enum.Font.GothamBold
+title.TextSize = 15
+title.TextColor3 = Color3.fromRGB(30, 144, 255)
+title.Text = "🎵 songs"
+title.Parent = titleBar
+
+local miniBtn = Instance.new("TextButton")
+miniBtn.Size = UDim2.new(0, 36, 0, 36)
+miniBtn.Position = UDim2.new(1, -72, 0, 0)
+miniBtn.Text = "-"
+miniBtn.Font = Enum.Font.GothamBold
+miniBtn.TextSize = 18
+miniBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+miniBtn.BackgroundTransparency = 1
+miniBtn.Parent = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 36, 0, 36)
+closeBtn.Position = UDim2.new(1, -36, 0, 0)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.TextColor3 = Color3.fromRGB(220, 80, 80)
+closeBtn.BackgroundTransparency = 1
+closeBtn.Parent = titleBar
+
+closeBtn.Activated:Connect(function()
+    gui:Destroy()
+end)
+
+local dragging, dragStart, startPos = false, nil, nil
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local nowPlaying = Instance.new("TextLabel")
+nowPlaying.Size = UDim2.new(1, -24, 0, 16)
+nowPlaying.Position = UDim2.new(0, 12, 0, 40)
+nowPlaying.BackgroundTransparency = 1
+nowPlaying.TextXAlignment = Enum.TextXAlignment.Left
+nowPlaying.Font = Enum.Font.Gotham
+nowPlaying.TextSize = 12
+nowPlaying.TextColor3 = Color3.fromRGB(100, 180, 255)
+nowPlaying.Text = "Now playing: (none)"
+nowPlaying.Parent = frame
+
+local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(1, -24, 0, 28)
+searchBox.Position = UDim2.new(0, 12, 0, 60)
+searchBox.BackgroundColor3 = Color3.fromRGB(15, 40, 100)
+searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+searchBox.PlaceholderText = "Search song..."
+searchBox.Text = ""
+searchBox.ClearTextOnFocus = false
+searchBox.Font = Enum.Font.Gotham
+searchBox.TextSize = 13
+searchBox.BorderSizePixel = 0
+searchBox.Parent = frame
+Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 10)
+
+local listFrame = Instance.new("Frame")
+listFrame.Size = UDim2.new(1, -24, 1, -160)
+listFrame.Position = UDim2.new(0, 12, 0, 95)
+listFrame.BackgroundColor3 = Color3.fromRGB(10, 30, 80)
+listFrame.BorderSizePixel = 0
+listFrame.Parent = frame
+Instance.new("UICorner", listFrame).CornerRadius = UDim.new(0, 12)
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -10, 1, -10)
+scroll.Position = UDim2.new(0, 5, 0, 5)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 6
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.Parent = listFrame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = scroll
+
+local pad = Instance.new("UIPadding")
+pad.PaddingTop = UDim.new(0, 6)
+pad.PaddingBottom = UDim.new(0, 6)
+pad.PaddingLeft = UDim.new(0, 6)
+pad.PaddingRight = UDim.new(0, 6)
+pad.Parent = scroll
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    task.wait()
+    scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end)
+
+local currentSound = nil
+
+local function stopCurrent()
+    if currentSound then
+        currentSound:Stop()
+        currentSound:Destroy()
+        currentSound = nil
+    end
+end
+
+local buttonsBySong = {}
+
+local function createSongButton(song, order)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 32)
+    btn.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.Text = song.name
+    btn.AutoButtonColor = true
+    btn.LayoutOrder = order
+    btn.BorderSizePixel = 0
+    btn.Parent = scroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+
+    btn.Activated:Connect(function()
+        stopCurrent()
+        local sound = Instance.new("Sound")
+        if song.id:find("http") then
+            sound.SoundId = song.id
+        else
+            sound.SoundId = "rbxassetid://" .. song.id
+        end
+        sound.Volume = 1
+        sound.Parent = workspace
+        sound:Play()
+        currentSound = sound
+        nowPlaying.Text = "Now playing: " .. song.name
+        for _, b in pairs(buttonsBySong) do
+            b.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+        end
+        btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    end)
+
+    buttonsBySong[song.name] = btn
+end
+
+for i, song in ipairs(SONGS) do
+    createSongButton(song, i)
+end
+
+local stopBtn = Instance.new("TextButton")
+stopBtn.Size = UDim2.new(1, -24, 0, 32)
+stopBtn.Position = UDim2.new(0, 12, 1, -44)
+stopBtn.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
+stopBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+stopBtn.Font = Enum.Font.GothamBold
+stopBtn.TextSize = 13
+stopBtn.Text = "Stop"
+stopBtn.BorderSizePixel = 0
+stopBtn.Parent = frame
+Instance.new("UICorner", stopBtn).CornerRadius = UDim.new(0, 10)
+
+stopBtn.Activated:Connect(function()
+    stopCurrent()
+    nowPlaying.Text = "Now playing: (none)"
+    for _, b in pairs(buttonsBySong) do
+        b.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+    end
+end)
+
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local text = searchBox.Text:lower()
+    for name, btn in pairs(buttonsBySong) do
+        btn.Visible = (text == "") or (name:lower():find(text, 1, true) ~= nil)
+    end
+    task.wait()
+    scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end)
+
+local minimized = false
+local expandedSize = UDim2.new(0, 280, 0, 380)
+local minimizedSize = UDim2.new(0, 280, 0, 36)
+
+miniBtn.Activated:Connect(function()
+    minimized = not minimized
+    if minimized then
+        frame.Size = minimizedSize
+        miniBtn.Text = "+"
+        nowPlaying.Visible = false
+        searchBox.Visible = false
+        listFrame.Visible = false
+        stopBtn.Visible = false
+    else
+        frame.Size = expandedSize
+        miniBtn.Text = "-"
+        nowPlaying.Visible = true
+        searchBox.Visible = true
+        listFrame.Visible = true
+        stopBtn.Visible = true
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.Period then
+        gui.Enabled = not gui.Enabled
+    end
+end)
