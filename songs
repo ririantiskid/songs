@@ -70,7 +70,7 @@ title.Parent = titleBar
 local miniBtn = Instance.new("TextButton")
 miniBtn.Size = UDim2.new(0, 36, 0, 36)
 miniBtn.Position = UDim2.new(1, -72, 0, 0)
-miniBtn.Text = "-"
+miniBtn.Text = "⚜️"
 miniBtn.Font = Enum.Font.GothamBold
 miniBtn.TextSize = 18
 miniBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -280,24 +280,63 @@ end)
 
 local minimized = false
 local expandedSize = UDim2.new(0, 280, 0, 380)
-local minimizedSize = UDim2.new(0, 280, 0, 36)
+
+local miniPill = Instance.new("TextButton")
+miniPill.Size = UDim2.new(0, 50, 0, 50)
+miniPill.Position = UDim2.new(0, 20, 0.5, -25)
+miniPill.BackgroundColor3 = Color3.fromRGB(10, 20, 60)
+miniPill.TextColor3 = Color3.fromRGB(30, 144, 255)
+miniPill.Font = Enum.Font.GothamBold
+miniPill.TextSize = 22
+miniPill.Text = "🎵"
+miniPill.BorderSizePixel = 0
+miniPill.Visible = false
+miniPill.ZIndex = 200
+miniPill.Parent = gui
+Instance.new("UICorner", miniPill).CornerRadius = UDim.new(0, 12)
+local miniPillStroke = Instance.new("UIStroke")
+miniPillStroke.Color = Color3.fromRGB(30, 144, 255)
+miniPillStroke.Transparency = 0.3
+miniPillStroke.Parent = miniPill
+
+local pillDragging, pillDragStart, pillStartPos = false, nil, nil
+miniPill.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        pillDragging = true
+        pillDragStart = input.Position
+        pillStartPos = miniPill.Position
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        pillDragging = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if pillDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - pillDragStart
+        miniPill.Position = UDim2.new(
+            pillStartPos.X.Scale, pillStartPos.X.Offset + delta.X,
+            pillStartPos.Y.Scale, pillStartPos.Y.Offset + delta.Y
+        )
+    end
+end)
+miniPill.Activated:Connect(function()
+    if minimized then
+        minimized = false
+        frame.Visible = true
+        miniPill.Visible = false
+    end
+end)
 
 miniBtn.Activated:Connect(function()
     minimized = not minimized
     if minimized then
-        frame.Size = minimizedSize
-        miniBtn.Text = "+"
-        nowPlaying.Visible = false
-        searchBox.Visible = false
-        listFrame.Visible = false
-        stopBtn.Visible = false
+        frame.Visible = false
+        miniPill.Visible = true
     else
-        frame.Size = expandedSize
-        miniBtn.Text = "-"
-        nowPlaying.Visible = true
-        searchBox.Visible = true
-        listFrame.Visible = true
-        stopBtn.Visible = true
+        frame.Visible = true
+        miniPill.Visible = false
     end
 end)
 
