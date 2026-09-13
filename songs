@@ -172,6 +172,7 @@ end)
 
 local currentSound = nil
 local songCache = {}
+local debounce = false
 
 local function stopCurrent()
     if currentSound then
@@ -198,6 +199,9 @@ local function createSongButton(song, order)
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
 
     btn.Activated:Connect(function()
+        if debounce then return end
+        debounce = true
+
         stopCurrent()
         nowPlaying.Text = "Loading: " .. song.name
 
@@ -231,6 +235,10 @@ local function createSongButton(song, order)
                 b.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
             end
             btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+        end)
+
+        task.delay(0.4, function()
+            debounce = false
         end)
     end)
 
