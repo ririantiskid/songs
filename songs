@@ -28,6 +28,7 @@ local SONGS = {
     {name = "Song 23", id = "https://files.catbox.moe/i9w9zv.mp3"},
     {name = "Song 24", id = "https://files.catbox.moe/7ar7bw.mp3"},
     {name = "Song 25", id = "https://files.catbox.moe/iuaknn.mp3"},
+    {name = "Song 26", id = "https://files.catbox.moe/jmnb4b.mp3"},
 }
 
 local gui = Instance.new("ScreenGui")
@@ -170,6 +171,7 @@ layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 end)
 
 local currentSound = nil
+local songCache = {}
 
 local function stopCurrent()
     if currentSound then
@@ -197,21 +199,39 @@ local function createSongButton(song, order)
 
     btn.Activated:Connect(function()
         stopCurrent()
-        local sound = Instance.new("Sound")
-        if song.id:find("http") then
-            sound.SoundId = song.id
-        else
-            sound.SoundId = "rbxassetid://" .. song.id
-        end
-        sound.Volume = 1
-        sound.Parent = workspace
-        sound:Play()
-        currentSound = sound
-        nowPlaying.Text = "Now playing: " .. song.name
-        for _, b in pairs(buttonsBySong) do
-            b.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
-        end
-        btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+        nowPlaying.Text = "Loading: " .. song.name
+
+        task.spawn(function()
+            local soundId = songCache[song.id]
+            if not soundId then
+                local success, result = pcall(function()
+                    local fileName = "song_cache_" .. order .. ".mp3"
+                    if not isfile(fileName) then
+                        writefile(fileName, game:HttpGet(song.id))
+                    end
+                    return getcustomasset(fileName)
+                end)
+                if success and result then
+                    soundId = result
+                    songCache[song.id] = soundId
+                else
+                    soundId = song.id
+                end
+            end
+
+            local sound = Instance.new("Sound")
+            sound.SoundId = soundId
+            sound.Volume = 1
+            sound.Parent = workspace
+            sound:Play()
+            currentSound = sound
+            nowPlaying.Text = "Now playing: " .. song.name
+            
+            for _, b in pairs(buttonsBySong) do
+                b.BackgroundColor3 = Color3.fromRGB(20, 80, 180)
+            end
+            btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+        end)
     end)
 
     buttonsBySong[song.name] = btn
