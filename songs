@@ -29,6 +29,14 @@ local SONGS = {
     {name = "Song 24", id = "https://files.catbox.moe/7ar7bw.mp3"},
     {name = "Song 25", id = "https://files.catbox.moe/iuaknn.mp3"},
     {name = "Song 26", id = "https://files.catbox.moe/jmnb4b.mp3"},
+    {name = "Song 27", id = "https://files.catbox.moe/rvg7xr.mp3"},
+    {name = "Song 28", id = "https://files.catbox.moe/ik3lsz.mp3"},
+    {name = "Song 29", id = "https://files.catbox.moe/6pmig7.mp3"},
+    {name = "Song 30", id = "https://files.catbox.moe/p3dyf3.mp3"},
+    {name = "Song 31", id = "https://files.catbox.moe/2bogam.mp3"},
+    {name = "Song 32", id = "https://files.catbox.moe/yn1aju.mp3"},
+    {name = "Song 33", id = "https://files.catbox.moe/df2c0x.mp3"},
+    {name = "Song 34", id = "https://files.catbox.moe/cungmu.mp3"},
 }
 
 local gui = Instance.new("ScreenGui")
